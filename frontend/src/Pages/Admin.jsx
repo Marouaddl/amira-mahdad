@@ -8,7 +8,7 @@ import { FaEdit, FaTrash, FaUser } from 'react-icons/fa';
 import { GoLocation } from 'react-icons/go';
 import { PiRuler } from 'react-icons/pi';
 import { FiSettings } from 'react-icons/fi';
-import API from '../api';
+import axios from 'axios'; // Importation directe d'axios pour contourner api.js si nécessaire
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('Projets');
@@ -17,15 +17,14 @@ const Admin = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState('edit');
 
-  // Fetch projects from the backend
+  // Fetch projects from the backend using direct axios call
   const fetchProjects = async () => {
     try {
-      const res = await API.get('/projects');
-      const baseUrl = process.env.REACT_APP_API_URL || 'https://amira-mahdad-backend.onrender.com';
+      const res = await axios.get('https://amira-mahdad-backend.onrender.com/api/projects');
       const updatedProjects = res.data.map(project => ({
         ...project,
-        image: project.image ? `${baseUrl}/uploads/${project.image}` : null,
-        additionalImages: (project.additionalImages || []).map(img => `${baseUrl}/uploads/${img}`),
+        image: project.image ? `https://amira-mahdad-backend.onrender.com/uploads/${project.image}` : null,
+        additionalImages: (project.additionalImages || []).map(img => `https://amira-mahdad-backend.onrender.com/uploads/${img}`),
       }));
       setProjects(updatedProjects);
       console.log('Projects fetched:', updatedProjects); // Débogage
@@ -41,12 +40,13 @@ const Admin = () => {
   const handleSaveProject = async (projectData, formDataToSend) => {
     console.log('Saving project:', projectData, formDataToSend); // Débogage
     try {
+      const apiUrl = 'https://amira-mahdad-backend.onrender.com/api/projects';
       if (modalMode === 'edit' && projectData.id) {
-        await API.put(`/projects/${projectData.id}`, formDataToSend, {
+        await axios.put(`${apiUrl}/${projectData.id}`, formDataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       } else {
-        await API.post('/projects', formDataToSend, {
+        await axios.post(apiUrl, formDataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       }
@@ -61,7 +61,7 @@ const Admin = () => {
   const handleDeleteProject = async (projectId) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
       try {
-        await API.delete(`/projects/${projectId}`);
+        await axios.delete(`https://amira-mahdad-backend.onrender.com/api/projects/${projectId}`);
         await fetchProjects();
       } catch (err) {
         console.error('Erreur suppression projet:', err.response?.data || err.message);

@@ -27,7 +27,7 @@ const ProjectModal = ({ isOpen, onClose, project, onSave, mode = 'edit' }) => {
       });
       setMainImage(project.image || null);
       setMainImageFile(null);
-      setMainVideo(project.video || null); // Ajout de la vidéo existante
+      setMainVideo(project.video || null);
       setMainVideoFile(null);
       const additionalImgs = project.additionalImages || [];
       setAdditionalImages(additionalImgs);
