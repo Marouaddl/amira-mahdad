@@ -21,14 +21,16 @@ const Admin = () => {
   const fetchProjects = async () => {
     try {
       const res = await API.get('/projects');
+      const baseUrl = process.env.REACT_APP_API_URL || 'https://amira-mahdad-backend.onrender.com';
       const updatedProjects = res.data.map(project => ({
         ...project,
-        image: project.image ? `http://localhost:5000${project.image}` : null,
-        additionalImages: (project.additionalImages || []).map(img => `http://localhost:5000${img}`),
+        image: project.image ? `${baseUrl}/uploads/${project.image}` : null,
+        additionalImages: (project.additionalImages || []).map(img => `${baseUrl}/uploads/${img}`),
       }));
       setProjects(updatedProjects);
+      console.log('Projects fetched:', updatedProjects); // Débogage
     } catch (err) {
-      console.error('Erreur fetch projects:', err);
+      console.error('Erreur fetch projects:', err.response?.data || err.message);
     }
   };
 
@@ -37,8 +39,9 @@ const Admin = () => {
   }, []);
 
   const handleSaveProject = async (projectData, formDataToSend) => {
+    console.log('Saving project:', projectData, formDataToSend); // Débogage
     try {
-      if (modalMode === 'edit') {
+      if (modalMode === 'edit' && projectData.id) {
         await API.put(`/projects/${projectData.id}`, formDataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
@@ -50,8 +53,8 @@ const Admin = () => {
       await fetchProjects();
       setShowModal(false);
     } catch (err) {
-      console.error('Erreur sauvegarde projet:', err);
-      alert('Erreur lors de la sauvegarde');
+      console.error('Erreur sauvegarde projet:', err.response?.data || err.message);
+      alert(`Erreur lors de la sauvegarde: ${err.response?.data?.error || err.message}`);
     }
   };
 
@@ -61,7 +64,7 @@ const Admin = () => {
         await API.delete(`/projects/${projectId}`);
         await fetchProjects();
       } catch (err) {
-        console.error('Erreur suppression projet:', err);
+        console.error('Erreur suppression projet:', err.response?.data || err.message);
         alert('Erreur lors de la suppression');
       }
     }
@@ -78,15 +81,7 @@ const Admin = () => {
   };
 
   const handleAddProject = () => {
-    setSelectedProject({
-      title: '',
-      year: '',
-      location: '',
-      category: '',
-      description: '',
-      image: null,
-      additionalImages: [],
-    });
+    setSelectedProject(null);
     setModalMode('create');
     setShowModal(true);
   };
@@ -101,6 +96,7 @@ const Admin = () => {
             className="w-full h-full object-cover"
             onError={(e) => {
               e.target.style.display = 'none';
+              console.log('Image failed to load:', project.image);
             }}
           />
         ) : (
@@ -141,7 +137,6 @@ const Admin = () => {
     <div className="bg-black text-white min-h-screen flex flex-col">
       <Navbar />
       
-      {/* Navigation Tabs - Version responsive comme demandée */}
       <div className="px-4 sm:px-6 mt-4 sm:mt-6">
         <div className="flex flex-col sm:flex-row items-center bg-black border border-[#D97706] rounded p-1 w-full sm:w-fit">
           <button

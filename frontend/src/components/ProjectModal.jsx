@@ -71,7 +71,7 @@ const ProjectModal = ({ isOpen, onClose, project, onSave, mode = 'edit' }) => {
   const handleMainVideoChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      if (file.size > 50 * 1024 * 1024) { // Limite de 50 Mo
+      if (file.size > 50 * 1024 * 1024) {
         alert('La vidéo doit être inférieure à 50 Mo.');
         return;
       }
@@ -120,6 +120,7 @@ const ProjectModal = ({ isOpen, onClose, project, onSave, mode = 'edit' }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log('handleSubmit triggered', { formData, mainImageFile, mainVideoFile, additionalImageFiles }); // Débogage
 
     if (!formData.title || !formData.year || !formData.location || !formData.category) {
       alert('Veuillez remplir tous les champs obligatoires');
@@ -145,7 +146,7 @@ const ProjectModal = ({ isOpen, onClose, project, onSave, mode = 'edit' }) => {
       formDataToSend.append('image', mainImageFile);
     }
     if (mainVideoFile) {
-      formDataToSend.append('video', mainVideoFile); // Ajout de la vidéo
+      formDataToSend.append('video', mainVideoFile);
     }
     additionalImageFiles.forEach((file) => {
       formDataToSend.append('additionalImages', file);
