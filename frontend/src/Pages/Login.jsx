@@ -15,11 +15,14 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Login attempt with:', { username: 'admin', password }); // Débogage
     try {
       const res = await API.post('/auth/login', { username: 'admin', password });
+      console.log('Login success:', res.data); // Débogage
       localStorage.setItem('token', res.data.token);
       navigate('/admin');
     } catch (err) {
+      console.error('Login error:', err.response?.data || err.message); // Débogage détaillé
       setShowError(true);
       setTimeout(() => setShowError(false), 3000);
     }
