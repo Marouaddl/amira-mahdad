@@ -17,29 +17,18 @@ const Admin = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState('edit');
 
+  // Fetch projects from the backend
   const fetchProjects = async () => {
     try {
       const res = await API.get('/projects');
-      console.log('API response for projects (URL used):', API.defaults.baseURL + '/projects', res.data);
-      if (Array.isArray(res.data)) {
-        const updatedProjects = res.data.map(project => ({
-          ...project,
-          image: project.image ? `${API.defaults.baseURL}/uploads/${project.image}` : null,
-          additionalImages: (project.additionalImages || []).map(img => `${API.defaults.baseURL}/uploads/${img}`),
-        }));
-        setProjects(updatedProjects);
-        console.log('Projects fetched:', updatedProjects);
-      } else {
-        console.warn('API response is not an array:', res.data);
-        setProjects([]);
-      }
+      const updatedProjects = res.data.map(project => ({
+        ...project,
+        image: project.image ? `http://localhost:5000${project.image}` : null,
+        additionalImages: (project.additionalImages || []).map(img => `http://localhost:5000${img}`),
+      }));
+      setProjects(updatedProjects);
     } catch (err) {
-      console.error('Erreur fetch projects (détails):', {
-        status: err.response?.status,
-        data: err.response?.data,
-        message: err.message,
-        url: API.defaults.baseURL + '/projects',
-      });
+      console.error('Erreur fetch projects:', err);
     }
   };
 
@@ -48,31 +37,21 @@ const Admin = () => {
   }, []);
 
   const handleSaveProject = async (projectData, formDataToSend) => {
-    console.log('Saving project data:', projectData);
-    console.log('Saving form data entries:', Array.from(formDataToSend.entries()));
     try {
-      const apiUrl = '/projects';
-      let response;
-      if (modalMode === 'edit' && projectData.id) {
-        response = await API.put(`${apiUrl}/${projectData.id}`, formDataToSend, {
+      if (modalMode === 'edit') {
+        await API.put(`/projects/${projectData.id}`, formDataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       } else {
-        response = await API.post(apiUrl, formDataToSend, {
+        await API.post('/projects', formDataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       }
-      console.log('API response (URL used):', API.defaults.baseURL + apiUrl, response.data);
       await fetchProjects();
       setShowModal(false);
     } catch (err) {
-      console.error('Erreur sauvegarde projet (détails):', {
-        status: err.response?.status,
-        data: err.response?.data,
-        message: err.message,
-        url: API.defaults.baseURL + '/projects',
-      });
-      alert(`Erreur lors de la sauvegarde: ${err.response?.data?.error || err.message}`);
+      console.error('Erreur sauvegarde projet:', err);
+      alert('Erreur lors de la sauvegarde');
     }
   };
 
@@ -82,7 +61,7 @@ const Admin = () => {
         await API.delete(`/projects/${projectId}`);
         await fetchProjects();
       } catch (err) {
-        console.error('Erreur suppression projet:', err.response?.data || err.message);
+        console.error('Erreur suppression projet:', err);
         alert('Erreur lors de la suppression');
       }
     }
@@ -99,7 +78,15 @@ const Admin = () => {
   };
 
   const handleAddProject = () => {
-    setSelectedProject(null);
+    setSelectedProject({
+      title: '',
+      year: '',
+      location: '',
+      category: '',
+      description: '',
+      image: null,
+      additionalImages: [],
+    });
     setModalMode('create');
     setShowModal(true);
   };
@@ -114,7 +101,6 @@ const Admin = () => {
             className="w-full h-full object-cover"
             onError={(e) => {
               e.target.style.display = 'none';
-              console.log('Image failed to load:', project.image);
             }}
           />
         ) : (
@@ -154,6 +140,8 @@ const Admin = () => {
   return (
     <div className="bg-black text-white min-h-screen flex flex-col">
       <Navbar />
+      
+      {/* Navigation Tabs - Version responsive comme demandée */}
       <div className="px-4 sm:px-6 mt-4 sm:mt-6">
         <div className="flex flex-col sm:flex-row items-center bg-black border border-[#D97706] rounded p-1 w-full sm:w-fit">
           <button
@@ -165,6 +153,7 @@ const Admin = () => {
             <PiRuler size={14} className="sm:size-4" />
             PROJETS
           </button>
+          
           <button
             className={`flex items-center gap-1 px-3 py-2 sm:px-2 sm:py-1 rounded text-xs sm:text-sm ${
               activeTab === 'Profil' ? 'bg-[#D97706] text-black' : 'text-white'
@@ -174,6 +163,7 @@ const Admin = () => {
             <FaUser size={14} className="sm:size-4" />
             PROFIL
           </button>
+          
           <button
             className={`flex items-center gap-1 px-3 py-2 sm:px-2 sm:py-1 rounded text-xs sm:text-sm ${
               activeTab === 'Paramètres' ? 'bg-[#D97706] text-black' : 'text-white'
@@ -185,6 +175,7 @@ const Admin = () => {
           </button>
         </div>
       </div>
+
       <div className="flex-1 overflow-y-auto pb-8">
         {activeTab === 'Projets' && (
           <div className="px-4 sm:px-6 py-6">
@@ -214,6 +205,7 @@ const Admin = () => {
         {activeTab === 'Profil' && <Profil />}
         {activeTab === 'Paramètres' && <Setting />}
       </div>
+      
       {showModal && (
         <ProjectModal
           isOpen={showModal}
