@@ -8,7 +8,7 @@ import { FaEdit, FaTrash, FaUser } from 'react-icons/fa';
 import { GoLocation } from 'react-icons/go';
 import { PiRuler } from 'react-icons/pi';
 import { FiSettings } from 'react-icons/fi';
-import API from '../api'; // Utilise le module API au lieu d'axios
+import API from '../api'; // Utilise le module API
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('Projets');
@@ -19,17 +19,27 @@ const Admin = () => {
 
   const fetchProjects = async () => {
     try {
-      const res = await API.get('/projects'); // Utilise API avec chemin relatif
-      console.log('API response for projects:', res.data); // Débogage
-      const updatedProjects = res.data.map(project => ({
-        ...project,
-        image: project.image ? `https://amira-mahdad-backend.onrender.com/uploads/${project.image}` : null,
-        additionalImages: (project.additionalImages || []).map(img => `https://amira-mahdad-backend.onrender.com/uploads/${img}`),
-      }));
-      setProjects(updatedProjects);
-      console.log('Projects fetched:', updatedProjects);
+      const res = await API.get('/projects');
+      console.log('API response for projects (URL used):', API.defaults.baseURL + '/projects', res.data); // Débogage avec URL
+      if (Array.isArray(res.data)) {
+        const updatedProjects = res.data.map(project => ({
+          ...project,
+          image: project.image ? `${API.defaults.baseURL}/uploads/${project.image}` : null,
+          additionalImages: (project.additionalImages || []).map(img => `${API.defaults.baseURL}/uploads/${img}`),
+        }));
+        setProjects(updatedProjects);
+        console.log('Projects fetched:', updatedProjects);
+      } else {
+        console.warn('API response is not an array:', res.data);
+        setProjects([]);
+      }
     } catch (err) {
-      console.error('Erreur fetch projects:', err.response?.data || err.message);
+      console.error('Erreur fetch projects (détails):', {
+        status: err.response?.status,
+        data: err.response?.data,
+        message: err.message,
+        url: API.defaults.baseURL + '/projects',
+      });
     }
   };
 
@@ -43,21 +53,27 @@ const Admin = () => {
       console.log('FormData received:', pair[0], pair[1]); // Débogage
     }
     try {
-      const apiUrl = '/projects'; // Chemin relatif avec API
+      const apiUrl = '/projects';
+      let response;
       if (modalMode === 'edit' && projectData.id) {
-        await API.put(`${apiUrl}/${projectData.id}`, formDataToSend, {
+        response = await API.put(`${apiUrl}/${projectData.id}`, formDataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       } else {
-        const response = await API.post(apiUrl, formDataToSend, {
+        response = await API.post(apiUrl, formDataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
-        console.log('API response:', response.data); // Débogage
       }
+      console.log('API response (URL used):', API.defaults.baseURL + apiUrl, response.data); // Débogage avec URL
       await fetchProjects();
       setShowModal(false);
     } catch (err) {
-      console.error('Erreur sauvegarde projet:', err.response?.data || err.message);
+      console.error('Erreur sauvegarde projet (détails):', {
+        status: err.response?.status,
+        data: err.response?.data,
+        message: err.message,
+        url: API.defaults.baseURL + '/projects',
+      });
       alert(`Erreur lors de la sauvegarde: ${err.response?.data?.error || err.message}`);
     }
   };
@@ -65,7 +81,7 @@ const Admin = () => {
   const handleDeleteProject = async (projectId) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
       try {
-        await API.delete(`/projects/${projectId}`); // Utilise API
+        await API.delete(`/projects/${projectId}`);
         await fetchProjects();
       } catch (err) {
         console.error('Erreur suppression projet:', err.response?.data || err.message);

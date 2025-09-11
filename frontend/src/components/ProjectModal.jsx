@@ -157,7 +157,7 @@ const ProjectModal = ({ isOpen, onClose, project, onSave, mode = 'edit' }) => {
       console.log('FormData before send:', pair[0], pair[1]);
     }
 
-    onSave(projectDataToSave, formDataToSend); // Passer directement le FormData
+    onSave(projectDataToSave, formDataToSend);
   };
 
   if (!isOpen) return null;
