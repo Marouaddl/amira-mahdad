@@ -8,7 +8,7 @@ import { FaEdit, FaTrash, FaUser } from 'react-icons/fa';
 import { GoLocation } from 'react-icons/go';
 import { PiRuler } from 'react-icons/pi';
 import { FiSettings } from 'react-icons/fi';
-import axios from 'axios';
+import API from '../api'; // Utilise le module API au lieu d'axios
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('Projets');
@@ -19,7 +19,7 @@ const Admin = () => {
 
   const fetchProjects = async () => {
     try {
-      const res = await axios.get('https://amira-mahdad-backend.onrender.com/api/projects');
+      const res = await API.get('/projects'); // Utilise API avec chemin relatif
       console.log('API response for projects:', res.data); // Débogage
       const updatedProjects = res.data.map(project => ({
         ...project,
@@ -43,13 +43,13 @@ const Admin = () => {
       console.log('FormData received:', pair[0], pair[1]); // Débogage
     }
     try {
-      const apiUrl = 'https://amira-mahdad-backend.onrender.com/api/projects';
+      const apiUrl = '/projects'; // Chemin relatif avec API
       if (modalMode === 'edit' && projectData.id) {
-        await axios.put(`${apiUrl}/${projectData.id}`, formDataToSend, {
+        await API.put(`${apiUrl}/${projectData.id}`, formDataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       } else {
-        const response = await axios.post(apiUrl, formDataToSend, {
+        const response = await API.post(apiUrl, formDataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         console.log('API response:', response.data); // Débogage
@@ -65,7 +65,7 @@ const Admin = () => {
   const handleDeleteProject = async (projectId) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
       try {
-        await axios.delete(`https://amira-mahdad-backend.onrender.com/api/projects/${projectId}`);
+        await API.delete(`/projects/${projectId}`); // Utilise API
         await fetchProjects();
       } catch (err) {
         console.error('Erreur suppression projet:', err.response?.data || err.message);
