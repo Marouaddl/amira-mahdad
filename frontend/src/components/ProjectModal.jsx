@@ -120,7 +120,7 @@ const ProjectModal = ({ isOpen, onClose, project, onSave, mode = 'edit' }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('handleSubmit triggered', { formData, mainImageFile, mainVideoFile, additionalImageFiles }); // Débogage
+    console.log('handleSubmit triggered', { formData, mainImageFile, mainVideoFile, additionalImageFiles });
 
     if (!formData.title || !formData.year || !formData.location || !formData.category) {
       alert('Veuillez remplir tous les champs obligatoires');
@@ -152,7 +152,12 @@ const ProjectModal = ({ isOpen, onClose, project, onSave, mode = 'edit' }) => {
       formDataToSend.append('additionalImages', file);
     });
 
-    onSave(projectDataToSave, formDataToSend); // Passer les deux objets
+    // Débogage du FormData avant transmission
+    for (let pair of formDataToSend.entries()) {
+      console.log('FormData before send:', pair[0], pair[1]);
+    }
+
+    onSave(projectDataToSave, formDataToSend); // Passer directement le FormData
   };
 
   if (!isOpen) return null;

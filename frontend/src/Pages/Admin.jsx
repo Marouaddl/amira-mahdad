@@ -8,7 +8,7 @@ import { FaEdit, FaTrash, FaUser } from 'react-icons/fa';
 import { GoLocation } from 'react-icons/go';
 import { PiRuler } from 'react-icons/pi';
 import { FiSettings } from 'react-icons/fi';
-import axios from 'axios'; // Importation directe d'axios pour contourner api.js si nécessaire
+import axios from 'axios';
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('Projets');
@@ -17,17 +17,17 @@ const Admin = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState('edit');
 
-  // Fetch projects from the backend using direct axios call
   const fetchProjects = async () => {
     try {
       const res = await axios.get('https://amira-mahdad-backend.onrender.com/api/projects');
+      console.log('API response for projects:', res.data); // Débogage
       const updatedProjects = res.data.map(project => ({
         ...project,
         image: project.image ? `https://amira-mahdad-backend.onrender.com/uploads/${project.image}` : null,
         additionalImages: (project.additionalImages || []).map(img => `https://amira-mahdad-backend.onrender.com/uploads/${img}`),
       }));
       setProjects(updatedProjects);
-      console.log('Projects fetched:', updatedProjects); // Débogage
+      console.log('Projects fetched:', updatedProjects);
     } catch (err) {
       console.error('Erreur fetch projects:', err.response?.data || err.message);
     }
@@ -38,7 +38,10 @@ const Admin = () => {
   }, []);
 
   const handleSaveProject = async (projectData, formDataToSend) => {
-    console.log('Saving project:', projectData, formDataToSend); // Débogage
+    console.log('Saving project:', projectData, formDataToSend);
+    for (let pair of formDataToSend.entries()) {
+      console.log('FormData received:', pair[0], pair[1]); // Débogage
+    }
     try {
       const apiUrl = 'https://amira-mahdad-backend.onrender.com/api/projects';
       if (modalMode === 'edit' && projectData.id) {
@@ -46,9 +49,10 @@ const Admin = () => {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       } else {
-        await axios.post(apiUrl, formDataToSend, {
+        const response = await axios.post(apiUrl, formDataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
+        console.log('API response:', response.data); // Débogage
       }
       await fetchProjects();
       setShowModal(false);
