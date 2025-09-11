@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-console.log('REACT_APP_API_URL:', process.env.REACT_APP_API_URL); // Débogage
+console.log('REACT_APP_API_URL:',import.meta.env.VITE_API_URL); // Débogage
 const API = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'https://amira-mahdad-backend.onrender.com/api',
+  baseURL: import.meta.env.VITE_API_URL || 'https://amira-mahdad-backend.onrender.com/api',
   headers: { 'Content-Type': 'application/json' },
 });
 
