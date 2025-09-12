@@ -24,7 +24,7 @@ const Admin = () => {
       if (Array.isArray(res.data)) {
         const updatedProjects = res.data.map(project => ({
           ...project,
-          image: project.image || null, // Already includes /uploads/ from backend
+          image: project.image || null, // Already includes full URL from backend
           additionalImages: (project.additionalImages || []).map(img => img || null),
         }));
         setProjects(updatedProjects);
