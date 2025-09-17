@@ -5,7 +5,7 @@ import aa from '../assets/aa.jpg';
 
 const ProfileHeader = () => {
   const [profile, setProfile] = useState({
-    fullName: 'Amira Rihab Mahdad',
+    fullName: 'Amira Rihab Mahdad', // Hardcoded to enforce requirement
     title: 'Architecte DPLG',
     description: 'Spécialisée en conception architecturale moderne...',
     experience: '8',
@@ -18,7 +18,12 @@ const ProfileHeader = () => {
     const fetchProfile = async () => {
       try {
         const res = await API.get('/profile');
-        setProfile(res.data);
+        // Preserve the hardcoded fullName, merge other fields
+        setProfile((prev) => ({
+          ...prev,
+          ...res.data,
+          fullName: 'Amira Rihab Mahdad', // Enforce the name
+        }));
       } catch (err) {
         console.error('Erreur fetch profile:', err);
       }
@@ -26,34 +31,24 @@ const ProfileHeader = () => {
     fetchProfile();
   }, []);
 
-  // Fonction pour gérer le nom avec "Amira Rihab" en blanc et "Mahdad" en orange
-  const formatName = (fullName) => {
-    if (fullName === 'Amira Rihab Mahdad') {
-      return (
-        <>
-          Amira Rihab <span className="text-orange-500 font-bold">Mahdad</span>
-        </>
-      );
-    }
-    const [firstPart, lastPart] = fullName.split(' ');
-    return (
-      <>
-        {firstPart} <span className="text-orange-500 font-bold">{lastPart}</span>
-      </>
-    );
-  };
+  // Simplified function to format "Amira Rihab Mahdad"
+  const formatName = () => (
+    <>
+      Amira Rihab <span className="text-orange-500 font-bold">Mahdad</span>
+    </>
+  );
 
-  // Fonction pour télécharger le CV existant
+  // Function to download the existing CV
   const handleDownloadPDF = () => {
     const link = document.createElement('a');
-    link.href = '/cv_amira_mahdad.pdf'; // Chemin relatif depuis le dossier public
-    link.download = 'cv_amira_mahdad.pdf'; // Nom du fichier téléchargé
+    link.href = '/cv_amira_mahdad.pdf'; // Path relative to public folder
+    link.download = 'cv_amira_mahdad.pdf'; // Downloaded file name
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  // Fonction pour défiler vers la section "MES RÉALISATIONS" (ID "projets")
+  // Function to scroll to the "MES RÉALISATIONS" section (ID "projets")
   const handleScrollToProjects = () => {
     const projectsSection = document.getElementById('projets');
     if (projectsSection) {
@@ -62,14 +57,17 @@ const ProfileHeader = () => {
   };
 
   return (
-    <section id="accueil" className="bg-black flex flex-col md:flex-row justify-between items-start gap-6 sm:gap-12 px-3 sm:px-6 py-6 sm:py-12 md:py-16 border-b border-orange-500">
+    <section
+      id="accueil"
+      className="bg-black flex flex-col md:flex-row justify-between items-start gap-6 sm:gap-12 px-3 sm:px-6 py-6 sm:py-12 md:py-16 border-b border-orange-500"
+    >
       <div className="md:w-1/2">
         <p className="text-xs sm:text-sm text-orange-500 uppercase tracking-wider mb-1 sm:mb-3 flex items-center">
           <span className="inline-block w-4 sm:w-6 h-0.5 bg-orange-500 mr-1 sm:mr-2"></span>
           Architecte professionnelle
         </p>
         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-white leading-tight mb-1 sm:mb-2">
-          {formatName(profile.fullName)}
+          {formatName()}
         </h1>
         <p className="text-sm sm:text-base md:text-lg text-gray-300 font-medium mb-3 sm:mb-6">{profile.title}</p>
         <p className="text-gray-400 leading-relaxed mb-4 sm:mb-8 max-w-xs sm:max-w-md md:max-w-xl">{profile.description}</p>
@@ -114,7 +112,7 @@ const ProfileHeader = () => {
               backgroundPosition: 'center',
             }}
           >
-            <span className="sr-only">Photo de {profile.fullName}</span>
+            <span className="sr-only">Photo de Amira Rihab Mahdad</span>
           </div>
           <div className="absolute -bottom-3 sm:-bottom-5 left-2 sm:left-5 bg-black border border-orange-500 px-3 sm:px-5 py-1 sm:py-2 rounded-lg text-center shadow-lg hover:scale-105 transition-transform">
             <div className="text-orange-500 text-lg sm:text-xl font-bold">{profile.experience}</div>
