@@ -1,7 +1,6 @@
-// frontend/src/components/ProjectGrid.js
 import React, { useState, useEffect } from 'react';
 import { GoLocation } from 'react-icons/go';
-import ProjectModal from './ProjectModal'; // Corrected import (fix typo)
+import ProjectModal from './ProjectModall';
 import API from '../api';
 
 const ProjectGrid = ({ category = 'TOUS' }) => {
@@ -10,7 +9,7 @@ const ProjectGrid = ({ category = 'TOUS' }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProjects = async () => {
+     const fetchProjects = async () => {
       try {
         setLoading(true);
         const res = await API.get('/projects');
@@ -38,7 +37,7 @@ const ProjectGrid = ({ category = 'TOUS' }) => {
         setLoading(false);
       }
     };
-
+    
     fetchProjects();
   }, [category]);
 
@@ -84,12 +83,11 @@ const ProjectGrid = ({ category = 'TOUS' }) => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 
                 <img
-                  src={project.image || 'https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'}
+                  src={project.image || 'https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'}
                   alt={project.title}
                   className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
                   onError={(e) => {
-                    console.error('Image failed to load:', project.image);
-                    e.target.src = 'https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80';
+                    e.target.src = 'https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80';
                   }}
                 />
                 
